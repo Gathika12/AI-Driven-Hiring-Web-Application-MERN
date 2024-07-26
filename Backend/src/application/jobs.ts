@@ -1,46 +1,41 @@
-import express from "express";
-import { Request, Response} from "express-serve-static-core";
-import jobs from '../infrastructure/jobs'
+import { Request, Response } from "express";
+import jobs from "../infrastructure/jobs";
+import Job from "../infrastructure/schemas/job";
 
-export const getAllJobs = (req: Request,res: Response) =>{
-    return res.json(jobs);
-
+export const getAllJobs = async (req: Request, res: Response) => {
+    const jobs = await Job.find();
+    return res.status(200).json(jobs);
 }
 
-export const createJob = (req: Request,res: Response) =>{
- //console.log(req.body);
- jobs.push(req.body);
- return res.status(201).send();
-
+export const createJob = async (req: Request, res: Response) => {
+    const job = req.body;
+    await Job.create(job);
+    return res.status(201).send();
 }
 
-export const DeleteJobs = (req: Request, res: Response) => {
- const IndexToRemove = jobs.findIndex(el => el._id === req.params._id)
- jobs.splice(IndexToRemove, 1)
- if(IndexToRemove === -1)
- {
-   return res.status(404).send();
- }
- //console.log(req.params);
- return res.status(204).send();
 
+export const getJobById = async (req: Request, res: Response) => {
+    const job = await Job.findById(req.params._id);
+    if (!job) {
+        return res.status(404).send();
+    }
+    return res.status(200).json(job);
 }
 
-export const getJobById = (req: Request, res: Response) => {
- const job = jobs.find(el => el._id === req.params._id);
- if(!job){
-   return res.status(404).send();
- }
- return res.json(job);
+export const deleteJob = async (req: Request, res: Response) => {
+    const job = await Job.findByIdAndDelete(req.params._id);
+    if (!job) {
+        return res.status(404).send();
+    }
+    return res.status(204).send();
 }
 
-export const updateJob = (req: Request, res: Response) => {
- const IndexToUpdate = jobs.findIndex(el => el._id === req.params._id)
- jobs[IndexToUpdate].title = req.body.title;
- jobs[IndexToUpdate].type = req.body.type;
- jobs[IndexToUpdate].location = req.body.location;
+export const updateJob = async (req: Request, res: Response) => {
+    const jobToUpdate = Job.findById(req.params._id);
+    if (!jobToUpdate) {
+        return res.status(404).send();
+    }
 
- //console.log(req.params);
- return res.status(204).send();
-
+    await Job.findByIdAndUpdate(req.params._id, { title: req.body.title, location: req.body.location, type: req.body.type });
+    return res.status(204).send();
 }

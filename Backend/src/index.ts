@@ -1,21 +1,17 @@
+import "dotenv/config";
 import express from "express";
-import { Request, Response} from "express-serve-static-core";
 import jobsRouter from "./api/jobs";
+import { connectDB } from "./infrastructure/db";
+import jobApplicationRouter from "./api/jobApplication";
 
 const app = express();
 app.use(express.json());
 
+connectDB();
 
+app.use("/jobs", jobsRouter);
 
+app.use("/jobApplications",jobApplicationRouter)
 
-
-
-
-
-//const userRouter = require("./users")
-
-app.use("/jobs",jobsRouter);
-
-
-const PORT=8000;
-app.listen(PORT, () => console.log('Server is listening on port ${port}'));
+const PORT = 8000
+app.listen(PORT, () => console.log(`Server is listening on port ${PORT}.`));
